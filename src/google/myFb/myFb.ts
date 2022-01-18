@@ -10,7 +10,8 @@ export class MyFirebase {
         if (MyFirebase.app === undefined) {
             MyFirebase.appDefault = applicationDefault();
             MyFirebase.app = initializeApp({
-                credential: MyFirebase.appDefault
+                credential: MyFirebase.appDefault,
+                databaseURL: "https://vrms-1fa68-default-rtdb.firebaseio.com/"
             });
         }
     }

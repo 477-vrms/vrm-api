@@ -1,7 +1,9 @@
-import express from "express";
+import express, {Request, Response} from "express";
 import cron from "node-cron";
 import cors from "cors";
 import {Api} from "./utils/api";
+import {decodeIDToken} from "./utils/auth";
+import {MyFbRTDb} from "./google/myFb/myFbRTDb";
 
 function checkOrigin(origin: string): boolean {
     return true;
@@ -47,6 +49,15 @@ Api.setPostRoute("/auth", (req: any, res: any) => {
     console.log('receiving data ...');
     console.log('body is ', req.body);
     res.send(req.body);
+});
+
+Api.setPostRoute("/joint/:id", async (req: Request, res: Response) => {
+    if (!await decodeIDToken(req)) {
+        res.sendStatus(400);
+        return
+    }
+    await MyFbRTDb.default.writeJoints(req.params.id, req.body);
+    res.sendStatus(200);
 });
 
 Api.setWs('/camera/:id', function(ws: any, req: any, next: any) {
