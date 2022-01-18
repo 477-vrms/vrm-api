@@ -11,8 +11,4 @@ export class MyFbDb extends MyFirebase {
         this.firestone = getFirestore(MyFirebase.app);
     }
 
-    static async testing() {
-        const response = await this.default.firestone.collection("testing").doc("ibf39bPxk3il3uQtzacL").get();
-        console.log(response);
-    }
 }
