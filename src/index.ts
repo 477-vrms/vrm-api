@@ -4,6 +4,7 @@ import cors from "cors";
 import {Api} from "./utils/api";
 import {decodeIDToken} from "./utils/auth";
 import {MyFbRTDb} from "./google/myFb/myFbRTDb";
+import {jointWs} from "./ws/joint";
 
 function checkOrigin(origin: string): boolean {
     return true;
@@ -59,6 +60,8 @@ Api.setPostRoute("/joint/:id", async (req: Request, res: Response) => {
     await MyFbRTDb.default.writeJoints(req.params.id, req.body);
     res.sendStatus(200);
 });
+
+Api.setWs("/joint/:id", jointWs);
 
 Api.setWs('/camera/:id', function(ws: any, req: any, next: any) {
 
