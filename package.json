@@ -38,7 +38,8 @@
     "fs-extra": "^10.0.0",
     "momentjs": "^2.0.0",
     "node-cron": "^3.0.0",
-    "node-fetch": "^3.1.0"
+    "node-fetch": "^3.1.0",
+    "zeromq": "^6.0.0-beta.6"
   },
   "engines": {
     "node": "16.x.x"

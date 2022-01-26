@@ -34,7 +34,7 @@ export class Api {
         this.default.app.ws(route, func);
     }
 
-    static listen() {
-        this.default.app.listen(process.env.PORT || 8000);
+    static listen(port: number | string) {
+        this.default.app.listen(port);
     }
 }
