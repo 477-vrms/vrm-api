@@ -22,5 +22,6 @@ RUN ls | grep -v package*.json | grep -v dist | xargs rm -rf
 WORKDIR /usr/src
 
 EXPOSE 8000
+EXPOSE 8001
 
 CMD [ "node", "app/dist/src/index.js" ]
