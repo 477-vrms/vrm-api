@@ -5,7 +5,7 @@ import {Api} from "./utils/api";
 import {decodeIDToken} from "./utils/auth";
 import {MyFbRTDb} from "./google/myFb/myFbRTDb";
 import {jointsWs} from "./ws/joint";
-import {ZmqHandler} from "./zmq";
+import {ZmqHandler} from "./zmq/tcp";
 
 function checkOrigin(origin: string): boolean {
     return true;

@@ -1,4 +1,4 @@
-import {ZmqHandler} from "../src/zmq";
+import {ZmqHandler} from "../src/zmq/tcp";
 
 async function main() {
     const zmq = ZmqHandler.zmq;

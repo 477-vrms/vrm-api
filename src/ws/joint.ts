@@ -2,7 +2,7 @@ import {Request, Response} from "express";
 import {decodeIDToken} from "../utils/auth";
 import * as ws from 'ws';
 import {MyFbRTDb} from "../google/myFb/myFbRTDb";
-import {ZmqHandler} from "../zmq";
+import {ZmqHandler} from "../zmq/tcp";
 
 
 export const jointsWs = async (ws: ws, req: Request, res: Response) => {
