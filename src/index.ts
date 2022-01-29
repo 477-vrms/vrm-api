@@ -5,7 +5,8 @@ import {Api} from "./utils/api";
 import {decodeIDToken} from "./utils/auth";
 import {MyFbRTDb} from "./google/myFb/myFbRTDb";
 import {jointsWs} from "./ws/joint";
-import {ZmqHandler} from "./zmq/tcp";
+import {Mq} from "./mq";
+import {WsUdp} from "./ws_udp";
 
 function checkOrigin(origin: string): boolean {
     return true;
@@ -103,6 +104,7 @@ if (process.env.ENV) {
         console.log("Run Every 12 Hours");
     });
 }
-ZmqHandler.zmq.setSender(8001)
-ZmqHandler.zmq.listen(8001)
+Mq.mq.listen(8001);
 Api.listen(process.env.PORT || 8000);
+const wsUdp: WsUdp = WsUdp.wsCreateById("testing", 8002);
+wsUdp.listen();
