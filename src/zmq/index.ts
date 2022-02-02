@@ -23,16 +23,17 @@ export class ZmqHandler {
 
     setSender(port: number | string, callback?: () => void) {
         const func = async () => {
-            await this.sender.bind(`tcp://127.0.0.1:${port}`);
+            await this.sender.connect(`tcp://0.0.0.0:${port}`);
         }
         func().then(callback);
     }
 
     listen(port: number | string, callback?: () => void) {
         const func = async () => {
-            await this.receiver.connect(`tcp://127.0.0.1:${port}`);
+            await this.receiver.bind(`tcp://0.0.0.0:${port}`);
             this.receiver.subscribe("vrms_server");
             for await (const [_, msg] of this.receiver) {
+                console.log("Send Data");
                 this.handler(JSON.parse(msg.toString()));
             }
         }

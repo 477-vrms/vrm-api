@@ -5,6 +5,7 @@ import {Api} from "./utils/api";
 import {decodeIDToken} from "./utils/auth";
 import {MyFbRTDb} from "./google/myFb/myFbRTDb";
 import {jointsWs} from "./ws/joint";
+import {WsUdp} from "./ws_udp";
 import {ZmqHandler} from "./zmq";
 
 function checkOrigin(origin: string): boolean {
@@ -13,9 +14,7 @@ function checkOrigin(origin: string): boolean {
 
 Api.setUse(cors({
     origin: (origin: string | undefined, callback) => {
-        console.log({origin})
         if (origin === undefined && process.env.ENV !== undefined) {
-            console.log({origin});
             callback({
                 name: "Origin is Undefined",
                 message: "Origin Used is Not Defined",
@@ -103,6 +102,7 @@ if (process.env.ENV) {
         console.log("Run Every 12 Hours");
     });
 }
-ZmqHandler.zmq.setSender(8001)
-ZmqHandler.zmq.listen(8001)
+ZmqHandler.zmq.listen(8001);
 Api.listen(process.env.PORT || 8000);
+const wsUdp: WsUdp = WsUdp.wsCreateById("testing", 8002);
+wsUdp.listen();
