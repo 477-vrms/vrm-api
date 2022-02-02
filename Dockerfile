@@ -23,5 +23,6 @@ WORKDIR /usr/src
 
 EXPOSE 8000
 EXPOSE 8001
+EXPOSE 8002
 
 CMD [ "node", "app/dist/src/index.js" ]
