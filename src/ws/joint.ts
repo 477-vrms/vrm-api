@@ -2,6 +2,7 @@ import {Request, Response} from "express";
 import {decodeIDToken} from "../utils/auth";
 import * as ws from 'ws';
 import {MyFbRTDb} from "../google/myFb/myFbRTDb";
+import {ZmqHandler} from "../zmq";
 
 
 export const jointsWs = async (ws: ws, req: Request, res: Response) => {
@@ -10,6 +11,7 @@ export const jointsWs = async (ws: ws, req: Request, res: Response) => {
         ws.on('message', async function(msg: string) {
             try {
                 const json = JSON.parse(msg);
+                await ZmqHandler.zmq.send("vrms_pi", json);
                 await MyFbRTDb.default.writeJoints(id, json);
             }
             catch (e) {
