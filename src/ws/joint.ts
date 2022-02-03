@@ -12,6 +12,7 @@ export const jointsWs = async (ws: ws, req: Request, res: Response) => {
             try {
                 const json = JSON.parse(msg);
                 await ZmqHandler.zmq.send("vrms_pi", json);
+                await MyFbRTDb.default.writeJoints(id, json);
             }
             catch (e) {
                 console.log(e);
