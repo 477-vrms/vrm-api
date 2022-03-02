@@ -104,5 +104,4 @@ if (process.env.ENV) {
 }
 ZmqHandler.zmq.listen(8001);
 Api.listen(process.env.PORT || 8000);
-const wsUdp: WsUdp = WsUdp.wsCreateById("testing", 8002);
-wsUdp.listen();
+WsUdp.udp.listen(8002);
