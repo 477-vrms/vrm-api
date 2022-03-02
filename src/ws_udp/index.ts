@@ -33,7 +33,7 @@ export class WsUdp {
     }
 
     async message(message: Object, rinfo: any) {
-        console.log({message: message.toString(), rinfo});
+        console.log({message: JSON.stringify(message), rinfo});
         this.count += 1;
         const newMessage = `Hi Back Matthew Wen ${this.count}`
         await this.send("vrms-pi", {count: this.count, msg: newMessage})
