@@ -67,6 +67,6 @@ jobs:
             --restart always \
             -p 2000:8000 \
             -p 2001:8001 \
-            -p 2002:8002 \
+            -p 2002:8002/udp \
             ghcr.io/477-vrms/vrms-api:main"
           gcloud compute os-login ssh-keys remove --key-file=/home/runner/.ssh/google_compute_engine.pub
