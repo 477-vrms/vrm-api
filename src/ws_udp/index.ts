@@ -1,8 +1,10 @@
-import dgram, {Socket} from 'dgram';
+import dgram from 'dgram';
+import {ZmqHandler} from "../zmq";
 
 export class WsUdp {
 
-    private rinfoMap: Map<string, Object> = new Map<string, Object>();
+    private rinfoUnity: any = undefined;
+    private rinfoPi: any = undefined;
     private server: dgram.Socket;
     private count: number;
     static default: WsUdp | undefined = undefined;
@@ -12,11 +14,7 @@ export class WsUdp {
         this.server.on('close', this.close);
         this.server.on('message', async (message: any, rinfo: any) => {
             try {
-                const obj = JSON.parse(message);
-                if (obj.id !== undefined) {
-                    this.rinfoMap.set(obj.id, rinfo);
-                }
-                await this.message(obj, rinfo);
+                await this.message(message, rinfo);
             }
             catch (e) {
                 console.log(e);
@@ -32,20 +30,63 @@ export class WsUdp {
         return WsUdp.default;
     }
 
-    async message(message: Object, rinfo: any) {
-        console.log({message: JSON.stringify(message), rinfo});
-        this.count += 1;
-        const newMessage = `Hi Back Matthew Wen ${this.count}`
-        await this.send("vrms-pi", {count: this.count, msg: newMessage})
+    async updateUnity(message: any, rinfo: any) {
+        try {
+            const obj = JSON.parse(message);
+            if (obj.id === "vrms-unity") {
+                this.rinfoPi = undefined;
+                await ZmqHandler.zmq.send("vrms_pi", {action: "video_start"});
+                this.rinfoUnity = rinfo;
+            }
+        }
+        catch (e) {
+            return;
+        }
     }
 
-    async send(id: string, message: Object) {
-        const rinfo: any = this.rinfoMap.get(id);
-        if (rinfo) {
-            await this.server.send(JSON.stringify(message), rinfo.port, rinfo.address);
+    updatePi(message: any, rinfo: any) {
+        if (this.rinfoUnity === undefined) {
+            return;
+        }
+        try {
+            const obj = JSON.parse(message);
+            if (obj.id === "vrms-pi") {
+                this.rinfoPi = rinfo;
+            }
+        }
+        catch (e) {
+            return;
+        }
+
+    }
+
+    async sendVideo(message: any, rinfo: any) {
+        if (this.rinfoPi === undefined || this.rinfoUnity === undefined) {
+            return
+        }
+        if (
+            this.rinfoPi.port !== rinfo.port ||
+            this.rinfoPi.address !== rinfo.address
+        ) {
+            return
+        }
+        if (this.rinfoUnity) {
+            await this.server.send(message, this.rinfoUnity.port, this.rinfoUnity.address);
         }
         else {
-            console.log(`rinfo with id ${id} not found`);
+            this.rinfoPi = undefined;
+        }
+    }
+
+    async message(message: any, rinfo: any) {
+        if (this.rinfoUnity === undefined) {
+            await this.updateUnity(message, rinfo);
+        }
+        else if (this.rinfoPi === undefined) {
+            this.updatePi(message, rinfo);
+        }
+        else {
+            await this.sendVideo(message, rinfo);
         }
     }
 
