@@ -33,9 +33,9 @@ export class WsUdp {
     async updateUnity(message: any, rinfo: any) {
         try {
             const obj = JSON.parse(message);
-            if (obj.id === "vrms-unity") {
+            if (obj.id === "vrms_unity") {
                 this.rinfoPi = undefined;
-                await ZmqHandler.zmq.send("vrms_pi", {action: "video_start"});
+                await ZmqHandler.zmq.send("vrms_pi", {action: "video_ready"});
                 this.rinfoUnity = rinfo;
             }
         }
@@ -44,7 +44,7 @@ export class WsUdp {
         }
     }
 
-    updatePi(message: any, rinfo: any) {
+    async updatePi(message: any, rinfo: any) {
         if (this.rinfoUnity === undefined) {
             return;
         }
@@ -53,6 +53,7 @@ export class WsUdp {
             if (obj.id === "vrms-pi") {
                 this.rinfoPi = rinfo;
             }
+            await ZmqHandler.zmq.send("vrms_pi", {action: "video_start"})
         }
         catch (e) {
             return;
@@ -83,7 +84,7 @@ export class WsUdp {
             await this.updateUnity(message, rinfo);
         }
         else if (this.rinfoPi === undefined) {
-            this.updatePi(message, rinfo);
+            await this.updatePi(message, rinfo);
         }
         else {
             await this.sendVideo(message, rinfo);
