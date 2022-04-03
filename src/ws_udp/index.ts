@@ -1,6 +1,18 @@
 import dgram from 'dgram';
 import {ZmqHandler} from "../zmq";
 
+
+function parseMessage(message: any) {
+    try {
+        let obj = JSON.parse(message);
+        obj['is_json'] = true;
+        return obj;
+    }
+    catch (e) {
+        return {is_json: false};
+    }
+}
+
 export class WsUdp {
 
     private rinfoUnity: any = undefined;
@@ -31,33 +43,18 @@ export class WsUdp {
     }
 
     async updateUnity(message: any, rinfo: any) {
-        try {
-            const obj = JSON.parse(message);
-            if (obj.id === "vrms-unity") {
-                this.rinfoPi = undefined;
-                await ZmqHandler.zmq.send("vrms_pi", {action: "video_start"});
-                this.rinfoUnity = rinfo;
-            }
-        }
-        catch (e) {
-            return;
-        }
+        this.count = 0;
+        this.rinfoPi = undefined;
+        this.rinfoUnity = rinfo;
+        await ZmqHandler.zmq.send("vrms_pi", {action: "video_ready"});
     }
 
-    updatePi(message: any, rinfo: any) {
+    async updatePi(message: any, rinfo: any) {
         if (this.rinfoUnity === undefined) {
             return;
         }
-        try {
-            const obj = JSON.parse(message);
-            if (obj.id === "vrms-pi") {
-                this.rinfoPi = rinfo;
-            }
-        }
-        catch (e) {
-            return;
-        }
-
+        this.rinfoPi = rinfo;
+        await ZmqHandler.zmq.send("vrms_pi", {action: "video_start"})
     }
 
     async sendVideo(message: any, rinfo: any) {
@@ -71,6 +68,8 @@ export class WsUdp {
             return
         }
         if (this.rinfoUnity) {
+            this.count += 1;
+            // console.log("incoming camera data from unity", this.count);
             await this.server.send(message, this.rinfoUnity.port, this.rinfoUnity.address);
         }
         else {
@@ -79,11 +78,14 @@ export class WsUdp {
     }
 
     async message(message: any, rinfo: any) {
-        if (this.rinfoUnity === undefined) {
-            await this.updateUnity(message, rinfo);
-        }
-        else if (this.rinfoPi === undefined) {
-            this.updatePi(message, rinfo);
+        const response = parseMessage(message);
+        if (response.is_json) {
+            if (response.id === "vrms_unity") {
+                await this.updateUnity(response, rinfo);
+            }
+            else if (response.id === "vrms_pi")  {
+                await this.updatePi(response, rinfo);
+            }
         }
         else {
             await this.sendVideo(message, rinfo);
