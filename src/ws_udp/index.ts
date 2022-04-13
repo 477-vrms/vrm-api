@@ -18,7 +18,6 @@ export class WsUdp {
     private rinfoUnity: any = undefined;
     private rinfoPi: any = undefined;
     private server: dgram.Socket;
-    private count: number;
     static default: WsUdp | undefined = undefined;
 
     constructor() {
@@ -32,7 +31,6 @@ export class WsUdp {
                 console.log(e);
             }
         });
-        this.count = 0;
     }
 
     public static get udp(): WsUdp {
@@ -43,7 +41,6 @@ export class WsUdp {
     }
 
     async updateUnity(message: any, rinfo: any) {
-        this.count = 0;
         this.rinfoPi = undefined;
         this.rinfoUnity = rinfo;
         await ZmqHandler.zmq.send("vrms_pi", {action: "video_ready"});
@@ -68,8 +65,6 @@ export class WsUdp {
             return
         }
         if (this.rinfoUnity) {
-            this.count += 1;
-            // console.log("incoming camera data from unity", this.count);
             await this.server.send(message, this.rinfoUnity.port, this.rinfoUnity.address);
         }
         else {
