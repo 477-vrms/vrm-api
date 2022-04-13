@@ -17,6 +17,11 @@ export const jointsWs = async (ws: ws, req: Request, res: Response) => {
                 console.log(e);
             }
         });
+        ws.on('close', async function() {
+            const json = {action: "buzzer"};
+            await ZmqHandler.zmq.send("vrms_pi", {action: "buzzer"});
+            await ZmqHandler.zmq.send("vrms_pi", {action: "video_end"})
+        });
     }
     else {
         ws.close();
