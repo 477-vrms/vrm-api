@@ -13,7 +13,12 @@ export class ZmqHandler {
     private constructor() {}
 
     public async send(topic: string, obj: Object) {
-        await this.sender.send([topic, JSON.stringify(obj)]);
+        try {
+            await this.sender.send([topic, JSON.stringify(obj)]);
+        }
+        catch (e) {
+            console.log("error sending:", e);
+        }
     }
 
     handler: Function = async (json: object) => {
@@ -26,8 +31,6 @@ export class ZmqHandler {
         }
         return ZmqHandler.default;
     }
-
-
 
     listen(port: number | string, callback?: () => void) {
         const func = async () => {

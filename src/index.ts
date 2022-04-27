@@ -7,6 +7,7 @@ import {MyFbRTDb} from "./google/myFb/myFbRTDb";
 import {jointsWs} from "./ws/joint";
 import {WsUdp} from "./ws_udp";
 import {ZmqHandler} from "./zmq";
+import {debugWs} from "./ws/debug";
 
 function checkOrigin(origin: string): boolean {
     return true;
@@ -62,6 +63,8 @@ Api.setPostRoute("/joints/:id", async (req: Request, res: Response) => {
 });
 
 Api.setWs("/joints/:id", jointsWs);
+
+Api.setWs("/debug", debugWs);
 
 Api.setWs('/camera/:id', function(ws: any, req: any, next: any) {
 
