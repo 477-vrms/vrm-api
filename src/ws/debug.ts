@@ -36,7 +36,7 @@ export class Debug {
     public async addWs(id: string, ws: ws) {
         this.remove(id);
         this.mapWs.set(id, ws);
-        await ws.send(this.config);
+        await ws.send(JSON.stringify(this.config));
     }
 
     public async send(message: DebugConfig) {
@@ -44,24 +44,26 @@ export class Debug {
         if (newConfig !== this.config) {
             this.config = newConfig;
             for (const [key, value] of Object.entries(this.mapWs)) {
-                await value.send(this.config);
+                await value.send(JSON.stringify(this.config));
             }
         }
     }
 
     public remove(id: string) {
+        const removed = this.mapWs.get(id);
         this.mapWs.delete(id);
+        if (removed) {
+            removed.send(JSON.stringify({...this.config, removed: true}));
+            removed.close();
+        }
     }
-
 }
 
 export const debugWs = async (ws: ws, req: Request, res: Response) => {
     const user = await decodeFbToken(req);
     if (user) {
         const wsId = user.uid;
-        ws.on('open', async () => {
-            await Debug.default.addWs(wsId, ws);
-        })
+        await Debug.default.addWs(wsId, ws);
 
         ws.on('message', async (message: string) => {
             try {
