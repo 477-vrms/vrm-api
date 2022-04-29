@@ -13,6 +13,9 @@ export const jointsWs = async (ws: ws, req: Request, res: Response) => {
         ws.on('message', async function(msg: string) {
             try {
                 const json = JSON.parse(msg);
+                if ("J4" in json) {
+                    json["J4"] = json["J4"] > 230 ? 230: json["J4"];
+                }
                 await Promise.all([MyFbRTDb.default.writeJoints(id, json), ZmqHandler.zmq.send("vrms_pi", json)])
             }
             catch (e) {
