@@ -45,28 +45,3 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
-      - name: Auth with GCP with WIF
-        uses: 'google-github-actions/auth@v0'
-        with:
-          workload_identity_provider: 'projects/284911242659/locations/global/workloadIdentityPools/gh-to-vm-pool/providers/gh-to-vm-provider'
-          service_account: ' gh-actions-to-vm@mwenclubhouse.iam.gserviceaccount.com'
-      - name: 'Set up Cloud SDK'
-        uses: 'google-github-actions/setup-gcloud@v0'
-
-      - name: 'Use GCP CLI'
-        run: |
-          gcloud compute ssh mwenclubhouse --zone us-central1-a --command "\
-          sudo docker system prune -f -a ; \
-          sudo docker pull ghcr.io/477-vrms/vrms-api:main ; \
-          sudo docker stop vrms-api ; \
-          sudo docker container rm vrms-api ; \
-          sudo docker run -d --env-file /home/mwenclubhouse/environments/vrms.env.list \
-            -v /home/mwenclubhouse/vrms:/usr/src/bucket \
-            --name vrms-api \
-            --restart always \
-            -p 2000:8000 \
-            -p 2001:8001 \
-            -p 2002:8002/udp \
-            ghcr.io/477-vrms/vrms-api:main"
-          gcloud compute os-login ssh-keys remove --key-file=/home/runner/.ssh/google_compute_engine.pub
